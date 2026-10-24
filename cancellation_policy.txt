@@ -1,0 +1,21 @@
+QUICKKART CANCELLATION POLICY
+Version 2.4 | Effective 1 September 2026
+(Fictional policy written for a RAG learning project. QuickKart is not a real company.)
+
+SECTION 1: CANCELLING AN ORDER YOURSELF
+1.1 Free cancellation window: you can cancel for free within 2 minutes of placing the order. You receive a full refund and no fee is charged.
+1.2 After 2 minutes, and before the delivery partner picks up your order, you can still cancel. A cancellation fee of Rs. 20 is deducted from your refund.
+1.3 After the delivery partner has picked up your order and the status shows "Out for delivery", you cannot cancel, unless the order is more than 60 minutes late (see Late Delivery Policy, clause 2.4).
+1.4 For cash on delivery orders cancelled after the free window, no money has been paid, so the Rs. 20 fee is added to your next order.
+1.5 To cancel, go to Orders, select the order, and tap Cancel order.
+
+SECTION 2: CANCELLATIONS BY QUICKKART
+2.1 Out of stock: if an item is out of stock, that item is cancelled and refunded to the original payment method. The rest of the order is delivered. No fee is charged.
+2.2 If the remaining items fall below the minimum order value of Rs. 99, the order is still delivered with no extra charge.
+2.3 Whole order cancelled by QuickKart (for example the store closed or no delivery partner was available): you receive a full refund including all fees. If the cancellation happens after a delivery partner was assigned, a Rs. 50 QuickKart Wallet credit is also added.
+2.4 QuickKart may cancel orders it suspects are fraudulent. Refunds for these orders go to the original payment method within 7 working days after review.
+
+SECTION 3: SCHEDULED ORDERS
+3.1 A scheduled order can be cancelled for free until 60 minutes before the start of its delivery slot.
+3.2 Within the last 60 minutes before the slot starts, cancelling a scheduled order costs a cancellation fee of Rs. 40, deducted from the refund.
+3.3 A scheduled order cannot be cancelled after the delivery partner has picked it up.
