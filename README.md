@@ -12,7 +12,7 @@ These are on my own test questions, with each question run once, so they show th
 
 - **Retrieval:** the needed passages were in the top 3 results for 16 of 17 answerable questions at the chosen chunk size (one of those checks was later found too lenient, see the details).
 - **Policy assistant (live demo):** 14 of 17 answerable questions fully correct, 2 partly correct, 1 wrong, and all 3 unanswerable questions correctly refused.
-- **Agent with orders data (not yet in the demo):** 14 of 14 test questions reached the right outcome after I fixed two wrong citations. Every amount came from a tool, not from the model.
+- **Agent with orders data (in the live demo’s Agent mode):** 14 of 14 test questions reached the right outcome after I fixed two wrong citations. Every amount came from a tool, not from the model.
 
 **Full evaluation, failure analysis and limitations: [docs/evaluation.md](docs/evaluation.md)**
 
