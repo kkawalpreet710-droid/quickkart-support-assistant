@@ -88,6 +88,54 @@ Both unanswerable questions were refused correctly. The two wrong citations were
 - **The model repeats what the tools tell it.** My credit tool always returned a note citing clause 2.5, so for orders with no credit the model cited the wrong clause. I made the note depend on the result. The automatic check could not catch this; I found it by reading.
 - **Answers vary between runs.** For "How long do I have to report a spoiled item?", the answer included both the 24-hour and 48-hour windows in 0 of 5 runs with my first prompt and 4 of 5 with the stricter prompt. The scheduled-order cancellation question (Rs. 40) was correct in the one agent run, but I have not measured it over repeated runs.
 
+Part 3: reranking and an LCEL chain
+
+After the agent, I tested one retrieval change (reranking) and rewrote the pipeline as a LangChain Expression Language (LCEL) chain, to understand both ideas by implementing them.
+
+Reranking
+
+Vector search compares a question's embedding with stored chunk embeddings. A cross-encoder (cross-encoder/ms-marco-MiniLM-L6-v2, from sentence-transformers) instead reads the question and each chunk together and scores that pair, which is slower but can separate near-identical clauses. I retrieved 20 candidate chunks with the existing Chroma search, scored each (question, chunk) pair, and kept the best 5 for the prompt.
+
+I checked where the clauses a question needs ranked before and after reranking:
+
+Question	Clause	Vector search rank	After reranking
+Q17 (late and missing item)	Rs. 75 late-credit clause	10	2
+Q17	Missing-item refund clause	5	3
+Q10 (cancel after 10 minutes)	Rs. 20 clause (correct)	2	1
+Q10	Rs. 40 clause (wrong case)	1	2
+Q11 (cancel a scheduled order)	Rs. 40 clause (correct)	1	1
+Q11	Rs. 20 clause (wrong case)	5	2
+
+An earlier check had placed the Q17 clauses at ranks 15 and 8, so the exact "before" ranks are not reliable. I rely on the direction of the change. These three questions were picked because I expected them to be hard, so this shows reranking can help, not how much it helps overall.
+
+LCEL chain
+
+I rewrote answer() as a chain: the question goes through a step that retrieves passages, then a prompt template, the model (openai/gpt-oss-20b on Groq, temperature 0), and a string output parser. I built two chains that differ only in the retriever: plain vector search (top 5) and retrieve-20-then-rerank-to-5. The prompt, model and temperature are identical, so a difference in answers comes from retrieval.
+
+On the late-and-missing-item question (Q17), the plain chain said both claims apply but gave no amounts. The reranked chain gave Rs. 75 and the full refund of the missing item's price, citing the right clauses. Both chains refused an unanswerable question correctly. I ran the plain chain on only these two questions, so I have not compared it with the original answer() across all 20.
+
+All 20 questions through the reranked chain
+
+I scored the answers by reading them, as before. One run per question.
+
+	Original code (Run 2)	Reranked chain
+Fully correct, of 17 answerable	14	14
+Partly correct	2 (Q9, Q17)	2 (Q8, Q9)
+Wrong	1 (Q11)	1 (Q11)
+Correctly said "I don't know", of 3	3	3
+
+What changed:
+
+Q17 improved from partly correct to correct: the amounts are now in the answer.
+Q8 got worse. The model said the Rs. 20 cancellation fee is waived because the delay exceeds 60 minutes. The policy gives a full refund including delivery and handling fees, but never says the cancellation fee is waived. The model inferred it. I did not check which passages it was given.
+Q11 and Q9 are unchanged. For Q11 the right clause was already ranked first before reranking, so it is a generation failure that a better ranking cannot fix.
+Q13 added that the Rs. 50 credit expires after 90 days. The policy says compensation credits such as late-delivery and apology credits expire, so this is a reasonable reading, and I counted the answer as correct.
+What I take from this
+
+Reranking helped a retrieval failure (Q17, where the needed clause was not among the chunks the model saw) and could not help generation failures (Q11, Q9). Giving the model different context also introduced a new unsupported inference (Q8). The overall tally did not change, and with one run on a small set I do not claim an improvement.
+
+I did not evaluate hybrid search (BM25 plus vector search). The reranker is not in the live app: it needs PyTorch, and I have not tested whether that fits the free hosting limits.
+
 ## Limitations
 
 - I wrote the documents, the questions and the order data, so they share vocabulary and real users would probably score lower.
@@ -96,10 +144,5 @@ Both unanswerable questions were refused correctly. The two wrong citations were
 - I scored answers by reading them, so borderline cases are my judgment. The automatic check for the agent cannot verify which clause an answer cites.
 - The agent uses several API requests per question, because the conversation is resent at every step, so it uses the free allowance faster. It is not yet in the live demo.
 - The model sometimes rewrites small details, such as "Rs." as a rupee symbol.
-
-## What I would do next
-
-- Score a fresh set of questions written in different wording, including conditional ones
-- Run the Q11 question and other conditional questions many times to measure consistency
-- Test splitting a multi-topic question into sub-questions before retrieval
-- Try a larger model on the questions where answers varied
+- Reranking and the LCEL chain were tested in the notebook only, not in the live app. The reranker needs PyTorch, which I have not tested against the free hosting limits.
+- The reranking comparison uses a handful of hand-picked questions and one run of the full set, so it shows that reranking can help, not how much.
